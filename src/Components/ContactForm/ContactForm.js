@@ -5,7 +5,7 @@ import actions from "./../../redux/actions";
 
 import s from './ContactForm.module.css';
 
-function ContactForm({ onAddContact }) {
+function ContactForm({ contacts, onAddContact }) {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -26,6 +26,15 @@ function ContactForm({ onAddContact }) {
 
   const handleSubmit = e => {
     e.preventDefault();
+    const identicalName = contacts.some(contact => {
+      return contact.name.toLowerCase() === name.toLowerCase();
+    });
+
+    if (identicalName) {
+      alert(`${name} is already in contacts!`);
+      return;
+    }
+
     onAddContact({ name, number });
     reset();
   };
@@ -71,8 +80,12 @@ ContactForm.propTypes = {
     onAddContact: propTypes.func.isRequired,
 };
 
-const mapDispatchToProps = dispatch => ({
-  onAddContact: ({name, number}) => dispatch(actions.addContact(name, number))
+const mapStateToProps = (state) => ({
+  contacts: state.contacts.items
 });
 
-export default connect(null, mapDispatchToProps)(ContactForm);
+const mapDispatchToProps = dispatch => ({
+  onAddContact: ({name, number}) => dispatch(actions.addContact(name, number)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
